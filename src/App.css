@@ -1,0 +1,33 @@
+#root {
+  display: flex;
+  width: 100vw;
+  justify-content: center;
+}
+
+.container {
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+  border: 1px solid #e7e7e7;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.column {
+  flex: 1;
+  border: 1px solid #999;
+  padding: 10px;
+}
+
+.column-row {
+  padding: 5px;
+  border: 1px solid #999;
+  margin: 5px 0;
+}
