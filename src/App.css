@@ -5,29 +5,38 @@
 }
 
 .container {
-  width: auto;
+  width: 1200px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 10px;
+  padding: 20px;
   border: 1px solid #e7e7e7;
+  border-radius: 10px;
+  background-color: #ccc;
 }
 
 .row {
   display: flex;
   gap: 10px;
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: yellow;
 }
 
 .column {
   flex: 1;
+  gap: 20px;
   border: 1px solid #999;
-  padding: 10px;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: lightgreen;
 }
 
 .column-row {
   padding: 5px;
   border: 1px solid #999;
   margin: 5px 0;
+  background-color: lightsalmon;
+  color: black;
 }

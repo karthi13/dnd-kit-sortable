@@ -4,17 +4,23 @@ import {
   DragOverEvent,
   DragStartEvent,
 } from "@dnd-kit/core";
-import "./App.css";
 import React from "react";
-import { generateContent, Container, Row as RowType } from "./data";
-import Row from "./Row";
+import { generateContent, Container, Row as RowType } from "@/data";
+import Row from "@/components/row";
+import "./App.css";
 
 type Props = {};
 
 const App: React.FC<Props> = () => {
-  const onDragStart = (event: DragStartEvent) => {};
-  const onDragOver = (event: DragOverEvent) => {};
-  const onDragEnd = (event: DragEndEvent) => {};
+  const onDragStart = (event: DragStartEvent) => {
+    console.log({ ...event });
+  };
+  const onDragOver = (event: DragOverEvent) => {
+    console.log({ ...event });
+  };
+  const onDragEnd = (event: DragEndEvent) => {
+    console.log({ ...event });
+  };
 
   const containerData: Container = generateContent("container-1", 3); // Example with 3 rows
 
@@ -26,7 +32,7 @@ const App: React.FC<Props> = () => {
     >
       <div className="container">
         {containerData.rows.map((row: RowType) => (
-          <Row row={row} />
+          <Row row={row} key={row.id} />
         ))}
       </div>
     </DndContext>

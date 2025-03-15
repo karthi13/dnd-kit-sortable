@@ -1,6 +1,6 @@
 import React from "react";
-import { Column as ColumnType, ColumnRow as ColRowType } from "./data";
-import ColumnRow from "./ColumnRow";
+import { Column as ColumnType, ColumnRow as ColRowType } from "@/data";
+import ColumnRow from "@components/columnRow";
 
 type Props = {
   column: ColumnType;
@@ -8,9 +8,9 @@ type Props = {
 
 const Column: React.FC<Props> = ({ column }) => {
   return (
-    <div key={column.id} className="column">
+    <div className="column">
       {column.columnRows.map((colRow: ColRowType) => (
-        <ColumnRow colRow={colRow} />
+        <ColumnRow colRow={colRow} key={colRow.id} />
       ))}
     </div>
   );
