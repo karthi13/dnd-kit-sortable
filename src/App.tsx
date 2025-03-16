@@ -38,11 +38,32 @@ const App: React.FC<Props> = () => {
     console.log({ ...event });
   };
   const onDragOver = (event: DragOverEvent) => {
-    // console.log({ ...event });
+    const activeType = event.active.data.current?.type;
+    const overType = event.over?.data.current?.type;
+
+    if (
+      activeType === "row" &&
+      overType === "row" &&
+      event.active.id !== event.over?.id
+    ) {
+      console.log("over event only rows => ", { ...event });
+      return;
+    }
   };
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
-    console.log({ active, over });
+    const activeType = active.data.current?.type;
+    const overType = over?.data.current?.type;
+
+    if (activeType === "row" && overType === "row" && active.id !== over?.id) {
+      setContainerData((draft) => {
+        const oldIndex = draft.rows.findIndex((item) => item.id === active.id);
+        const newIndex = draft.rows.findIndex((item) => item.id === over?.id);
+        draft.rows = arrayMove(draft.rows, oldIndex, newIndex);
+      });
+      return;
+    }
+
     if (
       over?.data?.current &&
       active?.data?.current &&
@@ -115,7 +136,7 @@ const App: React.FC<Props> = () => {
     >
       <div className="container">
         <SortableContext
-          items={containerData.rows}
+          items={containerData.rows.map((row) => row.id)}
           strategy={verticalListSortingStrategy}
         >
           {containerData.rows.map((row: RowType) => (
