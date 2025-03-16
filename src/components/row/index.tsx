@@ -8,7 +8,7 @@ type Props = {
 
 const Row: React.FC<Props> = ({ row }) => {
   return (
-    <div key={row.id} className="row">
+    <div className="row">
       {row.columns.map((column: ColumnType) => (
         <Column column={column} key={column.id}/>
       ))}

@@ -1,16 +1,26 @@
+import { ulid } from "ulid";
+
 export type ColumnRow = {
   id: string;
   content: string;
+  colRowIndex: number;
+  parent: {
+    colIndex: number;
+    rowIndex: number;
+  };
 };
 
 export type Column = {
   id: string;
+  colIndex: number;
+  parentRowIndex: number;
   columnRows: ColumnRow[];
 };
 
 export type Row = {
   id: string;
   columns: Column[];
+  rowIndex: number;
 };
 
 export type Container = {
@@ -24,15 +34,31 @@ export function generateContent(
 ): Container {
   return {
     id: containerId,
-    rows: Array.from({ length: numRows }, (_, rowIndex) => ({
-      id: `row-${rowIndex + 1}`,
-      columns: Array.from({ length: 3 }, (_, colIndex) => ({
-        id: `col-${rowIndex + 1}-${colIndex + 1}`,
-        columnRows: Array.from({ length: 2 }, (_, colRowIndex) => ({
-          id: `col-row-${rowIndex + 1}-${colIndex + 1}-${colRowIndex + 1}`,
-          content: `Column Row ${colRowIndex + 1}`,
-        })),
-      })),
-    })),
+    rows: Array.from({ length: numRows }, (_, rowIndex) => {
+      const rowId = ulid();
+      return {
+        id: rowId,
+        rowIndex,
+        columns: Array.from({ length: 3 }, (_, colIndex) => {
+          const colId = ulid();
+          return {
+            id: colId,
+            colIndex,
+            parentRowIndex: rowIndex,
+            columnRows: Array.from({ length: 2 }, (_, colRowIndex) => {
+              return {
+                id: ulid(),
+                colRowIndex,
+                parent: {
+                  colIndex,
+                  rowIndex,
+                },
+                content: `Row - ${rowIndex} / Col - ${colIndex} / ColRow - ${colRowIndex}`,
+              };
+            }),
+          };
+        }),
+      };
+    }),
   };
 }

@@ -9,10 +9,11 @@ type Props = {
 
 const ColumnRow: React.FC<Props> = ({ colRow }) => {
   const { listeners, setNodeRef, attributes, transform } = useDraggable({
-    id: colRow.id + "-" + Math.random(),
+    id: colRow.id,
     data: {
       type: "colRow",
-      id: colRow.id + "-" + Math.random(),
+      id: colRow.id,
+      parent: colRow.parent,
     },
   });
 
