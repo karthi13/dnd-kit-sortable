@@ -45,7 +45,7 @@ export function generateContent(
             id: colId,
             colIndex,
             parentRowIndex: rowIndex,
-            columnRows: Array.from({ length: 2 }, (_, colRowIndex) => {
+            columnRows: Array.from({ length: 3 }, (_, colRowIndex) => {
               return {
                 id: ulid(),
                 colRowIndex,

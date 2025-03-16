@@ -1,21 +1,23 @@
 import React from "react";
 import { ColumnRow as ColRowType } from "@/data";
-import { useDraggable } from "@dnd-kit/core";
-import Draggable from "@components/dnd/draggable";
+import SortableItem from "../dnd/sortableItem";
+import { useSortable } from "@dnd-kit/sortable";
 
 type Props = {
   colRow: ColRowType;
 };
 
 const ColumnRow: React.FC<Props> = ({ colRow }) => {
-  const { listeners, setNodeRef, attributes, transform } = useDraggable({
-    id: colRow.id,
-    data: {
-      type: "colRow",
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
       id: colRow.id,
-      parent: colRow.parent,
-    },
-  });
+      data: {
+        type: "colRow",
+        id: colRow.id,
+        parent: colRow.parent,
+        accepts: ["colRow"],
+      },
+    });
 
   const columnRowStyle = {
     padding: "5px",
@@ -26,15 +28,16 @@ const ColumnRow: React.FC<Props> = ({ colRow }) => {
   };
 
   return (
-    <Draggable
+    <SortableItem
       ref={setNodeRef}
       listeners={listeners}
       attributes={attributes}
       styles={{ ...columnRowStyle }}
       transform={transform}
+      transition={transition}
     >
       {colRow.content}
-    </Draggable>
+    </SortableItem>
   );
 };
 

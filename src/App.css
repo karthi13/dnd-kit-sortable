@@ -23,20 +23,3 @@
   border-radius: 10px;
   background-color: yellow;
 }
-
-.column {
-  flex: 1;
-  gap: 20px;
-  border: 1px solid #999;
-  padding: 20px;
-  border-radius: 10px;
-  background-color: lightgreen;
-}
-
-.column-row {
-  padding: 5px;
-  border: 1px solid #999;
-  margin: 5px 0;
-  background-color: lightsalmon;
-  color: black;
-}

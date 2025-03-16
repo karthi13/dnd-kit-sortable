@@ -1,8 +1,10 @@
 import React from "react";
 import { Column as ColumnType, ColumnRow as ColRowType } from "@/data";
 import ColumnRow from "@components/columnRow";
-import Droppable from "../dnd/droppable";
-import { ulid } from "ulid";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 type Props = {
   column: ColumnType;
@@ -18,24 +20,17 @@ const Column: React.FC<Props> = ({ column }) => {
     backgroundColor: "lightgreen",
   };
 
-  const droppableData = {
-    accepts: ["colRow"],
-    type: "column",
-    colIndex: column.colIndex,
-    rowIndex: column.parentRowIndex,
-  };
   return (
-    <Droppable
-      data={droppableData}
-      id={ulid()}
-      styles={{
-        ...colStyle,
-      }}
+    <SortableContext
+      items={column.columnRows}
+      strategy={verticalListSortingStrategy}
     >
-      {column.columnRows.map((colRow: ColRowType) => (
-        <ColumnRow colRow={colRow} key={colRow.id} />
-      ))}
-    </Droppable>
+      <div style={{ ...colStyle }}>
+        {column.columnRows.map((colRow: ColRowType) => (
+          <ColumnRow colRow={colRow} key={colRow.id} />
+        ))}
+      </div>
+    </SortableContext>
   );
 };
 
