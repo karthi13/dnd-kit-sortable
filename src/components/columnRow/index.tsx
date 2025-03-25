@@ -44,6 +44,7 @@ const ColumnRow: React.FC<Props> = ({ colRow, dragging }) => {
   };
 
   const spacer = colRow.id.includes("-spacer");
+
   return spacer ? (
     <div className="spacer"></div>
   ) : (
