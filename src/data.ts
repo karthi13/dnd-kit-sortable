@@ -3,10 +3,10 @@ import { ulid } from "ulid";
 export type ColumnRow = {
   id: string;
   content: string;
-  colRowIndex: number;
-  parent: {
-    colIndex: number;
-    rowIndex: number;
+  colRowIndex?: number;
+  parent?: {
+    colIndex?: number;
+    rowIndex?: number;
   };
 };
 

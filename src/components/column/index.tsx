@@ -5,6 +5,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { useDropContext } from "@/contexts/DropContext";
 
 type Props = {
   column: ColumnType;

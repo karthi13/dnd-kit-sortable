@@ -6,18 +6,44 @@ import SortableItem from "../dnd/sortableItem";
 
 type Props = {
   row: RowType;
+  dragging?: boolean;
 };
 
-const Row: React.FC<Props> = ({ row }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
+const Row: React.FC<Props> = ({ row, dragging }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: row.id,
+    data: {
+      type: "row",
       id: row.id,
-      data: {
-        type: "row",
-        id: row.id,
-        accepts: ["row"],
-      },
-    });
+      accepts: ["row"],
+    },
+  });
+
+  const rowStyles = {
+    display: "flex",
+    gap: "10px",
+    border: "1px solid #ccc",
+    padding: "20px",
+    borderRadius: "10px",
+    backgroundColor: "yellow",
+    opacity: "0",
+  };
+
+  const rowDraggingStyles = {
+    display: "flex",
+    gap: "10px",
+    border: "1px solid #ccc",
+    padding: "20px",
+    borderRadius: "10px",
+    backgroundColor: "lightyellow",
+  };
 
   return (
     <SortableItem
@@ -27,7 +53,7 @@ const Row: React.FC<Props> = ({ row }) => {
       transform={transform}
       transition={transition}
     >
-      <div className="row">
+      <div style={isDragging ? rowStyles : rowDraggingStyles}>
         {row.columns.map((column: ColumnType) => (
           <Column column={column} key={column.id} />
         ))}
