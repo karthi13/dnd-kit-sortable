@@ -123,8 +123,7 @@ const App: React.FC<Props> = () => {
                   rowIndex: number;
                   colIndex: number;
                   colRowIndex: number;
-                }[]
-              = [];
+                }[] = [];
 
             draft.rows.forEach((row, rowIndex) => {
               row.columns.forEach((column, colIndex) => {
@@ -313,6 +312,22 @@ const App: React.FC<Props> = () => {
             colRow.colRowIndex = index;
           }
         );
+      });
+    } else if (active?.data?.current?.fromSideBar) {
+      setContainerData((draft) => {
+        draft.rows.forEach((row) => {
+          row.columns.forEach((column) => {
+            // Remove items with "-spacer" in id
+            column.columnRows = column.columnRows.filter(
+              (item) => !item.id.includes("-spacer")
+            );
+
+            // Reassign colRowIndex values
+            column.columnRows.forEach((colRow, index) => {
+              colRow.colRowIndex = index;
+            });
+          });
+        });
       });
     }
 
