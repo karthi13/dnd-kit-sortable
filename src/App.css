@@ -15,9 +15,9 @@
   background-color: #ccc;
 }
 
-.pot {
-  width: 250px;
-  height: 300px;
+.sidebar {
+  width: 200px;
+  height: 500px;
   display: flex;
   flex-direction: column;
   gap: 20px;

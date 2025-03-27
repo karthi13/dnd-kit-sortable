@@ -1,0 +1,40 @@
+import DraggableEntity from "./DraggableEntity";
+
+const DraggableEntities = [
+  {
+    type: "input",
+    title: "Text Input",
+  },
+  {
+    type: "select",
+    title: "Select",
+  },
+  {
+    type: "text",
+    title: "Text",
+  },
+  {
+    type: "button",
+    title: "Button",
+  },
+  {
+    type: "textarea",
+    title: "Text Area",
+  },
+];
+
+type Props = {
+  id: string
+};
+
+const Sidebar: React.FC<Props> = ({ id }) => {
+  return (
+    <div key={id} className="sidebar">
+      {DraggableEntities.map((entity) => (
+        <DraggableEntity key={entity.type} entity={entity} />
+      ))}
+    </div>
+  );
+};
+
+export default Sidebar;

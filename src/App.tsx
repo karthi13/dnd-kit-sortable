@@ -8,7 +8,6 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-  closestCenter,
   DragOverlay,
 } from "@dnd-kit/core";
 import React, { useState, useRef } from "react";
@@ -23,7 +22,11 @@ import Row from "@/components/row";
 import "@/App.css";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import ColumnRow from "./components/columnRow";
-import DraggableEntity from "./components/DraggableEntity";
+import Sidebar from "./components/sidebar/Sidebar";
+import SidebarEntity from "./components/sidebar/SidebarEntity";
+import { ulid } from "ulid";
+
+import { current } from "immer";
 
 type Props = {};
 const generatedData: Container = generateContent("container-1", 3);
@@ -36,8 +39,19 @@ const App: React.FC<Props> = () => {
   const [activeColRow, setActiveColRow] = useState<ColRowType | undefined>(
     undefined
   );
+
+  const [sidebarFieldsRegenKey, setSidebarFieldsRegenKey] = useState(
+    Date.now().toString()
+  );
+  const [activeSidebarEntity, setActiveSidebarEntity] = useState<{
+    type: string;
+    title: string;
+  } | null>(null);
+
   const spacerInsertedRef = useRef<boolean | null>(null);
-  const currentDragEntityRef = useRef<ColRowType | null>(null);
+  const currentDragEntityRef = useRef<{ id: string; type: string } | null>(
+    null
+  );
 
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
@@ -47,8 +61,10 @@ const App: React.FC<Props> = () => {
     const activeData = active?.data?.current;
     const { rowIndex, colIndex, colRowIndex } = over?.data?.current?.parent;
 
+    console.log("over => event", over);
     if (activeData.fromSideBar) {
       if (!spacerInsertedRef.current) {
+        console.log("inside the if block spacerInsertedRef is false");
         const spacer = {
           id: active.id + "-spacer",
         };
@@ -90,15 +106,53 @@ const App: React.FC<Props> = () => {
           }
           spacerInsertedRef.current = true;
         });
-      } else if (!over) {
-        // This solves the issue where you could have a spacer handing out in the canvas if you drug
-        // a sidebar item on and then off
-        // spacerInsertedRef.current = false;
       } else {
+        console.log("else block in over event =>");
         setContainerData((draft) => {
           const spacerIndex = draft.rows[rowIndex].columns[
             colIndex
           ].columnRows.findIndex((f) => f.id.includes("-spacer"));
+
+          console.log({ spacerIndex });
+
+          // if the spacer is negative, then it is placed in another column remove it there and
+          // add spacer in this column
+          if (spacerIndex < 0) {
+            const spacerIndexes:
+              | {
+                  rowIndex: number;
+                  colIndex: number;
+                  colRowIndex: number;
+                }[]
+              = [];
+
+            draft.rows.forEach((row, rowIndex) => {
+              row.columns.forEach((column, colIndex) => {
+                column.columnRows.forEach((colRow, colRowIndex) => {
+                  if (colRow.id.includes("-spacer")) {
+                    spacerIndexes.push({ rowIndex, colIndex, colRowIndex });
+                  }
+                });
+              });
+            });
+
+            if (spacerIndexes.length) {
+              spacerIndexes.forEach((item) => {
+                draft.rows[item.rowIndex].columns[item.colIndex].columnRows =
+                  draft.rows[item.rowIndex].columns[
+                    item.colIndex
+                  ].columnRows.filter((item) => !item.id.includes("-spacer"));
+
+                draft.rows[rowIndex].columns[colIndex].columnRows.forEach(
+                  (colRow, index) => {
+                    colRow.colRowIndex = index;
+                  }
+                );
+              });
+            }
+            spacerInsertedRef.current = false;
+            return;
+          }
 
           const nextIndex =
             colRowIndex > -1
@@ -185,11 +239,15 @@ const App: React.FC<Props> = () => {
   };
 
   const cleanUp = () => {
+    setActiveRow(undefined);
+    setActiveColRow(undefined);
+    setActiveSidebarEntity(null);
     currentDragEntityRef.current = null;
     spacerInsertedRef.current = false;
   };
 
   const onDragStart = (event: DragStartEvent) => {
+    console.log("Drag start event =>", { ...event });
     const activeType = event.active.data.current?.type;
     const activeData = event.active.data.current;
 
@@ -212,23 +270,54 @@ const App: React.FC<Props> = () => {
       return;
     }
 
-    if (activeType === "entity") {
-      if (activeData?.fromSideBar) {
-        currentDragEntityRef.current = {
-          id: event.active.id as string,
-          content: activeData.content,
-          parent: {
-            rowIndex: undefined,
-            colIndex: undefined,
-          },
-        };
-        return;
-      }
+    if (activeData?.fromSideBar) {
+      setActiveSidebarEntity({
+        title: activeData.title,
+        type: activeData.type,
+      });
+      currentDragEntityRef.current = {
+        id: event.active.id as string,
+        type: activeData.type,
+      };
+      return;
     }
   };
 
-  const onDragEnd = ({ over }: DragOverEvent) => {
-    console.log({ over });
+  const onDragEnd = ({ active, over }: DragOverEvent) => {
+    console.log({ active, over });
+    if (
+      active?.data?.current?.fromSideBar &&
+      over?.data?.current?.type === "colRow"
+    ) {
+      const { rowIndex, colIndex } = over.data.current.parent;
+
+      setContainerData((draft) => {
+        const spacerIndex = draft.rows[rowIndex].columns[
+          colIndex
+        ].columnRows.findIndex((f) => f.id.includes("-spacer"));
+        draft.rows[rowIndex].columns[colIndex].columnRows.splice(
+          spacerIndex,
+          1,
+          {
+            id: ulid(),
+            content: `Row - ${rowIndex} / Col - ${colIndex} / ColRow - ${spacerIndex}`,
+            colRowIndex: spacerIndex,
+            parent: {
+              rowIndex,
+              colIndex,
+            },
+          }
+        );
+        draft.rows[rowIndex].columns[colIndex].columnRows.forEach(
+          (colRow, index) => {
+            colRow.colRowIndex = index;
+          }
+        );
+      });
+    }
+
+    setSidebarFieldsRegenKey(Date.now().toString());
+    cleanUp();
   };
 
   const onDragOver = (event: DragEndEvent) => {
@@ -237,6 +326,7 @@ const App: React.FC<Props> = () => {
     const currentOverData = over?.data?.current;
     const activeType = active.data.current?.type;
     const overType = over?.data.current?.type;
+    console.log({ currentActiveData, currentOverData });
 
     // condition is triggered when we drag the rows
     if (
@@ -253,13 +343,29 @@ const App: React.FC<Props> = () => {
     }
 
     // condition is triggered when we drag the entity to drop over a column
-    if (
-      currentActiveData?.type === "entity" &&
-      currentOverData?.type === "colRow" &&
-      currentActiveData &&
-      currentOverData
-    ) {
-      handleEntityDragOver(active, over);
+    if (currentActiveData?.fromSideBar) {
+      if (currentOverData?.type === "colRow") {
+        handleEntityDragOver(active, over);
+      } else if (!currentOverData) {
+        // This solves the issue where you could have a spacer handing out in the canvas if you drug
+        // a sidebar item on and then off
+        setContainerData((draft) => {
+          draft.rows.forEach((row) => {
+            row.columns.forEach((column) => {
+              // Remove items with "-spacer" in id
+              column.columnRows = column.columnRows.filter(
+                (item) => !item.id.includes("-spacer")
+              );
+
+              // Reassign colRowIndex values
+              column.columnRows.forEach((colRow, index) => {
+                colRow.colRowIndex = index;
+              });
+            });
+          });
+        });
+        spacerInsertedRef.current = false;
+      }
       return;
     }
 
@@ -274,16 +380,6 @@ const App: React.FC<Props> = () => {
     }
   };
 
-  const itemsToDrag = Array.from({ length: 2 }, (_, colRowIndex) => {
-    return (
-      <DraggableEntity
-        key={colRowIndex + ``}
-        id={colRowIndex + ``}
-        content={`Entity draggable - ${colRowIndex}`}
-      />
-    );
-  });
-
   return (
     <>
       <DndContext
@@ -291,9 +387,8 @@ const App: React.FC<Props> = () => {
         onDragEnd={onDragEnd}
         onDragOver={onDragOver}
         sensors={sensors}
-        collisionDetection={closestCenter}
       >
-        <div className="pot">{itemsToDrag}</div>
+        <Sidebar id={sidebarFieldsRegenKey} />
         <div className="container">
           <SortableContext items={containerData.rows.map((row) => row.id)}>
             {containerData.rows.map((row: RowType) => (
@@ -302,6 +397,9 @@ const App: React.FC<Props> = () => {
           </SortableContext>
         </div>
         <DragOverlay>
+          {activeSidebarEntity ? (
+            <SidebarEntity overlay title={activeSidebarEntity.title} />
+          ) : null}
           {activeRow ? <Row row={activeRow} dragging={true} /> : null}
           {activeColRow ? (
             <ColumnRow colRow={activeColRow} dragging={true} />
