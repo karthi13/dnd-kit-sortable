@@ -1,7 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import { useRef } from "react";
 import SidebarEntity from "./SidebarEntity";
+import { ulid } from "ulid";
 
 type Props = {
   entity: {
@@ -11,7 +11,7 @@ type Props = {
 };
 
 const DraggableEntity: React.FC<Props> = ({ entity }) => {
-  const id = useRef(Date.now());
+  const id = useRef(ulid());
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: id.current,
     data: {

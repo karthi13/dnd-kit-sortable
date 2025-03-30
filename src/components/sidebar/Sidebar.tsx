@@ -23,13 +23,9 @@ const DraggableEntities = [
   },
 ];
 
-type Props = {
-  id: string
-};
-
-const Sidebar: React.FC<Props> = ({ id }) => {
+const Sidebar = () => {
   return (
-    <div key={id} className="sidebar">
+    <div className="sidebar">
       {DraggableEntities.map((entity) => (
         <DraggableEntity key={entity.type} entity={entity} />
       ))}

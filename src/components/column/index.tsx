@@ -16,8 +16,12 @@ const Column: React.FC<Props> = ({ column }) => {
   const { listeners, setNodeRef, transform, transition } = useDroppable({
     id: column.id,
     data: {
-      parent: null,
-      isContainer: true,
+      colData: {
+        colIndex: column.colIndex,
+        rowIndex: column.parentRowIndex,
+      },
+      colRowLength: column.columnRows.length,
+      isColContainer: true,
     },
   });
 
